@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Button, Rating, Spinner } from 'flowbite-react';
 
 const App = props => {
-  const [movies, setMovies] = useState([]);
+  const [moviesByYear, setMoviesByYear] = useState([]);
+  const [moviesByRating, setMoviesByRating] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // utilizzo `useState` per definire lo stato `orderByYear` e la funzione `setOrderByYear` per aggiornarlo.
   const [orderByYear, setOrderByYear] = useState('DESC');
+  const [orderByRating, setOrderByRating] = useState('DESC');
 
 
   const fetchMovies = () => {
@@ -20,13 +22,18 @@ const App = props => {
     if (orderByYear) {
       url += `?orderByYear=${orderByYear}`;
     }
+    if (orderByRating) {
+      url += `&orderByRating=${orderByRating}`;
+    }
   
     return fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        setMovies(data);
-        setLoading(false);
-      });
+    .then(response => response.json())
+    .then(data => {
+      console.log('Data received:', data)
+      setMoviesByYear(data.moviesByYear);
+      setMoviesByRating(data.moviesByRating);
+      setLoading(false);
+    });
   };
 
   // funzione per ordinare i film al click
@@ -39,39 +46,67 @@ const App = props => {
     setOrderByYear(newOrderByYear);
      
   };
+  const changeOrderByRating = () => {
+
+    // verifica l'ordine
+    const newOrderByRating = orderByRating === 'ASC' ? 'DESC' : 'ASC';
+
+    // aggiorna lo stato di orderByRating 
+    setOrderByRating(newOrderByRating);
+     
+  };
   
 
   useEffect(() => {
     fetchMovies();
-  }, [orderByYear]); //ricarico i film ogni volta che orderByYear cambia
+  }, [orderByYear, orderByRating]); //ricarico i film ogni volta che orderByYear cambia
 
   return (
     <Layout>
       <Heading />
 
       {/* componente per filtrare i film in base all'anno*/}
-      <Filter orderByYear={orderByYear} changeOrderByYear={changeOrderByYear} />
+      <FilterByYear orderByYear={orderByYear} changeOrderByYear={changeOrderByYear}  />
+      <FilterByRating orderByRating={orderByRating} changeOrderByRating={changeOrderByRating} />
 
       <MovieList loading={loading}>
-        {movies.map((item, key) => (
-          <MovieItem key={key} {...item} />
+        {moviesByYear.map((movie, index) => (
+          <MovieItem key={index} {...movie} />
+        ))}
+        {moviesByRating.map((movie, index) => (
+          <MovieItem key={index} {...movie} />
         ))}
       </MovieList>
+{/* 
+      <MovieList loading={loading}>
+        {moviesByRating.map((movie, index) => (
+          <MovieItem key={index} {...movie} />
+        ))}
+      </MovieList> */}
     </Layout>
   );
 };
 
 // definizione del componente Filter come una funzione
-const Filter = ({ orderByYear, changeOrderByYear }) => {
+const FilterByYear = ({ orderByYear, changeOrderByYear}) => {
   return (
     <div className="filter-by-year">  
-        <Button color="light" size="xs" onClick={changeOrderByYear} className='mb-4'>
-          Ordina {orderByYear ? (orderByYear === 'ASC' ? 'dal meno recente' : 'dal più recente' ) : ''}
-        </Button>
-      </div>
+      <Button color="light" size="xs" onClick={changeOrderByYear} className='mb-4'>
+        Ordina {orderByYear ? (orderByYear === 'ASC' ? 'dal meno recente' : 'dal più recente' ) : ''}
+      </Button>
+    
+    </div>
   );
 };
-
+const FilterByRating = ({orderByRating, changeOrderByRating}) => {
+  return (
+    <div className="filter-by-year">  
+      <Button color="light" size="xs" onClick={changeOrderByRating} className='mb-4'>
+        Ordina {orderByRating ? (orderByRating === 'ASC' ? 'dal meno votato' : 'dal più votato' ) : ''}
+      </Button>
+    </div>
+  );
+};
 
 const Layout = props => {
   return (

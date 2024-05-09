@@ -12,6 +12,7 @@ export default defineConfig({
     strictPort: true
   },
   build: {
-    outDir: './public'
+    outDir: './public',
+    sourcemap: true
   }
 });

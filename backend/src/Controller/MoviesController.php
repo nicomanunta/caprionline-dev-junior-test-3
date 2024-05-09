@@ -20,6 +20,7 @@ class MoviesController extends AbstractController
     #[Route('/movies', methods: ['GET'])]
     public function list(Request $request): JsonResponse
     {   
+    // ORDINE PER ANNO
         // ottengo il parametro orderByYear 
         $orderByYear = $request->query->get('orderByYear');
 
@@ -29,9 +30,33 @@ class MoviesController extends AbstractController
             $orderByYear = "ASC";
         }
 
-    $movies = $this->movieRepository->findOrderedByYear($orderByYear);
-    $data = $this->serializer->serialize($movies, "json", ["groups" => "default"]);
+    // ORDINE PER RATING
+        // ottengo il parametro orderByRating 
+        $orderByRating = $request->query->get('orderByRating');
 
-    return new JsonResponse($data, json: true);
+        // Verifica se il valore di orderByRating è valido, se non è valido lo imposto ASC
+        if ($orderByRating !== "ASC" && $orderByRating !== "DESC") {
+            
+            $orderByRating = "ASC";
+        }
+
+    
+        $moviesByYear = $this->movieRepository->findOrderedByYear($orderByYear);
+        $moviesByRating = $this->movieRepository->findOrderedByRating($orderByRating);
+
+        $dataByYear = $this->serializer->serialize($moviesByYear, "json", ["groups" => "default"]);
+        $dataByRating = $this->serializer->serialize($moviesByRating, "json", ["groups" => "default"]);
+
+        $responseData = [
+            'moviesByYear' => json_decode($dataByYear, true),
+            'moviesByRating' => json_decode($dataByRating, true)
+        ];
+
+        return new JsonResponse($responseData);
+
+        
     }
+
+    
+    
 }
