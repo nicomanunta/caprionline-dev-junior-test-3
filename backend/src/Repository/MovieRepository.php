@@ -45,4 +45,18 @@ class MovieRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+
+    // trovo tutti i film ordinati per anno
+    public function findOrderedByYear(string $orderByYear): array
+    {
+        //creo una query builder per movie
+        $queryBuilder = $this->createQueryBuilder('m');
+        
+        //aggiungo un criterio di ordinamento in base all'anno
+        $queryBuilder->orderBy('m.year', $orderByYear);
+
+       
+        return $queryBuilder->getQuery()->getResult();
+    }
 }

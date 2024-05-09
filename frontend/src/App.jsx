@@ -5,24 +5,52 @@ const App = props => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMovies = () => {
-    setLoading(true);
+  // utilizzo `useState` per definire lo stato `orderByYear` e la funzione `setOrderByYear` per aggiornarlo.
+  const [orderByYear, setOrderByYear] = useState('DESC');
 
-    return fetch('http://localhost:8000/movies')
+
+  const fetchMovies = () => {
+    console.log('Funziona');
+    setLoading(true);
+  
+    // URL per API per ottenere l'elenco dei film
+    let url = 'http://localhost:8000/movies';
+
+    // verifico se è stato selezionato un ordine e aggiungo il parametro orderByYear all'URL
+    if (orderByYear) {
+      url += `?orderByYear=${orderByYear}`;
+    }
+  
+    return fetch(url)
       .then(response => response.json())
       .then(data => {
         setMovies(data);
         setLoading(false);
       });
-  }
+  };
+
+  // funzione per ordinare i film al click
+  const changeOrderByYear = () => {
+
+    // verifica l'ordine
+    const newOrderByYear = orderByYear === 'ASC' ? 'DESC' : 'ASC';
+
+    // aggiorna lo stato di orderByYear 
+    setOrderByYear(newOrderByYear);
+     
+  };
+  
 
   useEffect(() => {
     fetchMovies();
-  }, []);
+  }, [orderByYear]); //ricarico i film ogni volta che orderByYear cambia
 
   return (
     <Layout>
       <Heading />
+
+      {/* componente per filtrare i film in base all'anno*/}
+      <Filter orderByYear={orderByYear} changeOrderByYear={changeOrderByYear} />
 
       <MovieList loading={loading}>
         {movies.map((item, key) => (
@@ -32,6 +60,18 @@ const App = props => {
     </Layout>
   );
 };
+
+// definizione del componente Filter come una funzione
+const Filter = ({ orderByYear, changeOrderByYear }) => {
+  return (
+    <div className="filter-by-year">  
+        <Button color="light" size="xs" onClick={changeOrderByYear} className='mb-4'>
+          Ordina {orderByYear ? (orderByYear === 'ASC' ? 'dal meno recente' : 'dal più recente' ) : ''}
+        </Button>
+      </div>
+  );
+};
+
 
 const Layout = props => {
   return (
