@@ -6,10 +6,8 @@ const App = props => {
   const [loading, setLoading] = useState(true);
 
   // utilizzo `useState` per definire lo stato `orderByYear` e la funzione `setOrderByYear` per aggiornarlo.
-  const [orderByYear, setOrderByYear] = useState('DESC');
+  const [orderByYear, setOrderByYear] = useState('ASC');
   const [orderByRating, setOrderByRating] = useState('DESC');
-  const [selectedGenre, setSelectedGenre] = useState('');
-
 
 
   const fetchMovies = () => {
@@ -24,17 +22,8 @@ const App = props => {
       url += `?orderByYear=${orderByYear}`;
     }
     if (orderByRating) {
-      // Utilizza il simbolo "&" per aggiungere i parametri successivi
-      url += `${orderByYear ? '&' : '?'}orderByRating=${orderByRating}`;
+      url += `&orderByRating=${orderByRating}`;
     }
-  
-    // Verifica se è stato selezionato un genere e aggiungi il parametro corrispondente all'URL
-    if (selectedGenre) {
-      // Codifica correttamente il genere per gestire gli spazi nel URL
-      const encodedGenre = encodeURIComponent(selectedGenre);
-      url += `${orderByYear || orderByRating ? '&' : '?'}genre=${encodedGenre}`;
-    }
-    
   
     return fetch(url)
     .then(response => response.json())
@@ -47,7 +36,7 @@ const App = props => {
 
   // funzione per ordinare i film al click
   const changeOrderByYear = () => {
-    setSelectedGenre('');
+
     // verifica l'ordine
     const newOrderByYear = orderByYear === 'ASC' ? 'DESC' : 'ASC';
 
@@ -56,7 +45,7 @@ const App = props => {
      
   };
   const changeOrderByRating = () => {
-    setSelectedGenre('');
+
     // verifica l'ordine
     const newOrderByRating = orderByRating === 'ASC' ? 'DESC' : 'ASC';
 
@@ -68,7 +57,7 @@ const App = props => {
 
   useEffect(() => {
     fetchMovies();
-  }, [orderByYear, orderByRating, selectedGenre]); //ricarico i film ogni volta che orderByYear cambia
+  }, [orderByYear, orderByRating]); //ricarico i film ogni volta che orderByYear cambia
 
   return (
     <Layout>
@@ -77,8 +66,6 @@ const App = props => {
       {/* componente per filtrare i film in base all'anno*/}
       <FilterByYear orderByYear={orderByYear} changeOrderByYear={changeOrderByYear}  />
       <FilterByRating orderByRating={orderByRating} changeOrderByRating={changeOrderByRating} />
-      <FilterByGenre selectedGenre={selectedGenre} setSelectedGenre={setSelectedGenre} />
-
 
       
       <MovieList loading={loading}>
@@ -114,20 +101,6 @@ const FilterByRating = ({orderByRating, changeOrderByRating}) => {
         Ordina {orderByRating ? (orderByRating === 'ASC' ? 'dal meno votato' : 'dal più votato' ) : ''}
       </Button>
     </div>
-  );
-};
-const FilterByGenre = ({selectedGenre, setSelectedGenre }) => {
-  return (
-      <div className="filter-by-genre">
-          <label htmlFor="genre">Scegli un genere:</label>
-          <select id="genre" value={selectedGenre} onChange={(e) => setSelectedGenre(e.target.value)}>
-              <option value="">Tutti i generi</option>
-              <option value="azione">Azione</option>
-              <option value="avventura">Avventura</option>
-              <option value="commedia">Commedia</option>
-              {/* Aggiungi altri generi qui */}
-          </select>
-      </div>
   );
 };
 

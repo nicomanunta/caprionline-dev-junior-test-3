@@ -70,16 +70,6 @@ class MovieRepository extends ServiceEntityRepository
        
         return $queryBuilder->getQuery()->getResult();
     }
-    public function findByGenre(string $genre): array
-{
-    // Utilizza il QueryBuilder per trovare i film per genere
-    $queryBuilder = $this->createQueryBuilder('m');
-    $queryBuilder->leftJoin('m.genres', 'g');
-    $queryBuilder->andWhere('g.name = :genre');
-    $queryBuilder->setParameter('genre', $genre);
-    return $queryBuilder->getQuery()->getResult();
-}
-    
 
    
 

@@ -36,17 +36,10 @@ class MoviesController extends AbstractController
         if ($orderByRating !== "ASC" && $orderByRating !== "DESC") {
             $orderByRating = "ASC";
         }
-        $genre = $request->query->get('genre');
+
         // inizializzo un array vuoto 
         $movies = [];
 
-        if ($genre) {
-            $movies = $this->movieRepository->findByGenre($genre);
-        } else {
-            // Altrimenti, otteniamo tutti i film
-            $movies = $this->movieRepository->findAll();
-        }
-    
         // se è stato selezionato un ordine per rating
         if ($orderByRating) {
             // sovrascrivo
