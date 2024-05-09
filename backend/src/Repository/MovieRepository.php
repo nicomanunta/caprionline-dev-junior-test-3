@@ -62,13 +62,13 @@ class MovieRepository extends ServiceEntityRepository
     public function findOrderedByRating(string $orderByRating): array
     {
         //creo una query builder per movie
-        $queryBuilder2 = $this->createQueryBuilder('m');
+        $queryBuilder = $this->createQueryBuilder('m');
         
         //aggiungo un criterio di ordinamento in base all'anno
-        $queryBuilder2->orderBy('m.rating', $orderByRating);
+        $queryBuilder->orderBy('m.rating', $orderByRating);
 
        
-        return $queryBuilder2->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
    

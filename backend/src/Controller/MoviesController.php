@@ -7,7 +7,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
-
 use Symfony\Component\HttpFoundation\Request;
 
 class MoviesController extends AbstractController
@@ -20,43 +19,43 @@ class MoviesController extends AbstractController
     #[Route('/movies', methods: ['GET'])]
     public function list(Request $request): JsonResponse
     {   
-    // ORDINE PER ANNO
+        // ORDINE PER ANNO
         // ottengo il parametro orderByYear 
         $orderByYear = $request->query->get('orderByYear');
 
-        // Verifica se il valore di orderByYear è valido, se non è valido lo imposto ASC
+        // verifico se il valore di orderByYear è valido, se non è valido lo imposto ASC
         if ($orderByYear !== "ASC" && $orderByYear !== "DESC") {
-            
             $orderByYear = "ASC";
         }
 
-    // ORDINE PER RATING
+        // ORDINE PER RATING
         // ottengo il parametro orderByRating 
         $orderByRating = $request->query->get('orderByRating');
 
-        // Verifica se il valore di orderByRating è valido, se non è valido lo imposto ASC
+        // verifico se il valore di orderByRating è valido, se non è valido lo imposto ASC
         if ($orderByRating !== "ASC" && $orderByRating !== "DESC") {
-            
             $orderByRating = "ASC";
         }
 
-    
-        $moviesByYear = $this->movieRepository->findOrderedByYear($orderByYear);
-        $moviesByRating = $this->movieRepository->findOrderedByRating($orderByRating);
+        // inizializzo un array vuoto 
+        $movies = [];
 
-        $dataByYear = $this->serializer->serialize($moviesByYear, "json", ["groups" => "default"]);
-        $dataByRating = $this->serializer->serialize($moviesByRating, "json", ["groups" => "default"]);
+        // se è stato selezionato un ordine per rating
+        if ($orderByRating) {
+            // sovrascrivo
+            $movies = $this->movieRepository->findOrderedByRating($orderByRating);
+        }
+        // se è stato selezionato un ordine per anno
+        if ($orderByYear) {
+            // sovrascrivo
+            $movies = $this->movieRepository->findOrderedByYear($orderByYear);
+        }
 
-        $responseData = [
-            'moviesByYear' => json_decode($dataByYear, true),
-            'moviesByRating' => json_decode($dataByRating, true)
-        ];
-
-        return new JsonResponse($responseData);
 
         
-    }
+        $data = $this->serializer->serialize($movies, "json", ["groups" => "default"]);
 
-    
-    
+
+        return new JsonResponse(['movies' => json_decode($data, true)]);
+    }
 }

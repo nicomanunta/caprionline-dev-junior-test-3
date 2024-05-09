@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Button, Rating, Spinner } from 'flowbite-react';
 
 const App = props => {
-  const [moviesByYear, setMoviesByYear] = useState([]);
-  const [moviesByRating, setMoviesByRating] = useState([]);
+  const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // utilizzo `useState` per definire lo stato `orderByYear` e la funzione `setOrderByYear` per aggiornarlo.
-  const [orderByYear, setOrderByYear] = useState('DESC');
+  const [orderByYear, setOrderByYear] = useState('ASC');
   const [orderByRating, setOrderByRating] = useState('DESC');
 
 
@@ -30,8 +29,7 @@ const App = props => {
     .then(response => response.json())
     .then(data => {
       console.log('Data received:', data)
-      setMoviesByYear(data.moviesByYear);
-      setMoviesByRating(data.moviesByRating);
+      setMovies(data.movies);
       setLoading(false);
     });
   };
@@ -69,11 +67,9 @@ const App = props => {
       <FilterByYear orderByYear={orderByYear} changeOrderByYear={changeOrderByYear}  />
       <FilterByRating orderByRating={orderByRating} changeOrderByRating={changeOrderByRating} />
 
+      
       <MovieList loading={loading}>
-        {moviesByYear.map((movie, index) => (
-          <MovieItem key={index} {...movie} />
-        ))}
-        {moviesByRating.map((movie, index) => (
+        {movies.map((movie, index) => (
           <MovieItem key={index} {...movie} />
         ))}
       </MovieList>
