@@ -5,9 +5,9 @@ namespace App\Controller;
 use App\Repository\MovieRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 class MoviesController extends AbstractController
 {
@@ -18,44 +18,27 @@ class MoviesController extends AbstractController
 
     #[Route('/movies', methods: ['GET'])]
     public function list(Request $request): JsonResponse
-    {   
-        // ORDINE PER ANNO
-        // ottengo il parametro orderByYear 
+    {
+        // prendiamo i parametri per l'ordinamento
         $orderByYear = $request->query->get('orderByYear');
-
-        // verifico se il valore di orderByYear è valido, se non è valido lo imposto ASC
-        if ($orderByYear !== "ASC" && $orderByYear !== "DESC") {
-            $orderByYear = "ASC";
-        }
-
-        // ORDINE PER RATING
-        // ottengo il parametro orderByRating 
         $orderByRating = $request->query->get('orderByRating');
 
-        // verifico se il valore di orderByRating è valido, se non è valido lo imposto ASC
-        if ($orderByRating !== "ASC" && $orderByRating !== "DESC") {
-            $orderByRating = "ASC";
-        }
+        // recupero i film 
+        $movies = $this->movieRepository->findAll();
 
-        // inizializzo un array vuoto 
-        $movies = [];
-
-        // se è stato selezionato un ordine per rating
-        if ($orderByRating) {
-            // sovrascrivo
-            $movies = $this->movieRepository->findOrderedByRating($orderByRating);
-        }
-        // se è stato selezionato un ordine per anno
+        // se filtriamo per anno 
         if ($orderByYear) {
-            // sovrascrivo
-            $movies = $this->movieRepository->findOrderedByYear($orderByYear);
+            $movies = $this->movieRepository->findBy([], ['year' => $orderByYear]);
         }
 
+        // se filtriamo per rating
+        if ($orderByRating) {
+            $movies = $this->movieRepository->findBy([], ['rating' => $orderByRating]);
+        }
 
         
         $data = $this->serializer->serialize($movies, "json", ["groups" => "default"]);
 
-
-        return new JsonResponse(['movies' => json_decode($data, true)]);
+        return new JsonResponse($data, json: true);
     }
 }

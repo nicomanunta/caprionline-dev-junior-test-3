@@ -1,106 +1,82 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Rating, Spinner } from 'flowbite-react';
 
+// importiamo Axios
+import axios from 'axios'; 
+
 const App = props => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // utilizzo `useState` per definire lo stato `orderByYear` e la funzione `setOrderByYear` per aggiornarlo.
-  const [orderByYear, setOrderByYear] = useState('ASC');
-  const [orderByRating, setOrderByRating] = useState('DESC');
-
-
   const fetchMovies = () => {
-    console.log('Funziona');
     setLoading(true);
-  
-    // URL per API per ottenere l'elenco dei film
-    let url = 'http://localhost:8000/movies';
 
-    // verifico se è stato selezionato un ordine e aggiungo il parametro orderByYear all'URL
-    if (orderByYear) {
-      url += `?orderByYear=${orderByYear}`;
-    }
-    if (orderByRating) {
-      url += `&orderByRating=${orderByRating}`;
-    }
-  
-    return fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      console.log('Data received:', data)
-      setMovies(data.movies);
-      setLoading(false);
-    });
-  };
-
-  // funzione per ordinare i film al click
-  const changeOrderByYear = () => {
-
-    // verifica l'ordine
-    const newOrderByYear = orderByYear === 'ASC' ? 'DESC' : 'ASC';
-
-    // aggiorna lo stato di orderByYear 
-    setOrderByYear(newOrderByYear);
-     
-  };
-  const changeOrderByRating = () => {
-
-    // verifica l'ordine
-    const newOrderByRating = orderByRating === 'ASC' ? 'DESC' : 'ASC';
-
-    // aggiorna lo stato di orderByRating 
-    setOrderByRating(newOrderByRating);
-     
-  };
-  
+    // utilizzo axios per effettuare la richiesta ai film
+    axios.get('http://localhost:8000/movies')
+      .then(response => {
+        setMovies(response.data);
+        setLoading(false);
+      })
+      
+  }
 
   useEffect(() => {
     fetchMovies();
-  }, [orderByYear, orderByRating]); //ricarico i film ogni volta che orderByYear cambia
+  }, []);
+
+  const changeOrderByYear = () => {
+    setLoading(true);
+    
+    // richiesta GET con parametro orderByYear
+    axios.get('http://localhost:8000/movies?orderByYear=DESC')
+      .then(response => {
+        setMovies(response.data);
+        setLoading(false);
+      })
+      
+  }
+
+  const changeOrderByRating = () => {
+    setLoading(true);
+    // richiesta GET con parametro orderByRating
+    axios.get('http://localhost:8000/movies?orderByRating=DESC')
+      .then(response => {
+        setMovies(response.data);
+        setLoading(false);
+      })
+      
+  }
 
   return (
     <Layout>
-      <Heading />
+      <Heading 
+       
+      />
+      <Filter 
+        changeOrderByYear={changeOrderByYear}
+        changeOrderByRating={changeOrderByRating}
+      />
 
-      {/* componente per filtrare i film in base all'anno*/}
-      <FilterByYear orderByYear={orderByYear} changeOrderByYear={changeOrderByYear}  />
-      <FilterByRating orderByRating={orderByRating} changeOrderByRating={changeOrderByRating} />
-
-      
       <MovieList loading={loading}>
-        {movies.map((movie, index) => (
-          <MovieItem key={index} {...movie} />
+        {movies.map((item, key) => (
+          <MovieItem key={key} {...item} />
         ))}
       </MovieList>
-{/* 
-      <MovieList loading={loading}>
-        {moviesByRating.map((movie, index) => (
-          <MovieItem key={index} {...movie} />
-        ))}
-      </MovieList> */}
     </Layout>
   );
 };
 
-// definizione del componente Filter come una funzione
-const FilterByYear = ({ orderByYear, changeOrderByYear}) => {
+//aggiungo filtri
+const Filter = ({ changeOrderByYear, changeOrderByRating }) => {
   return (
-    <div className="filter-by-year">  
-      <Button color="light" size="xs" onClick={changeOrderByYear} className='mb-4'>
-        Ordina {orderByYear ? (orderByYear === 'ASC' ? 'dal meno recente' : 'dal più recente' ) : ''}
-      </Button>
-    
-    </div>
-  );
-};
-const FilterByRating = ({orderByRating, changeOrderByRating}) => {
-  return (
-    <div className="filter-by-year">  
-      <Button color="light" size="xs" onClick={changeOrderByRating} className='mb-4'>
-        Ordina {orderByRating ? (orderByRating === 'ASC' ? 'dal meno votato' : 'dal più votato' ) : ''}
-      </Button>
-    </div>
+    <div className="flex justify-center mt-4">
+        <Button color="light" size="sm" onClick={changeOrderByYear} className="mr-2 mb-8">
+          Ordina dal più recente
+        </Button>
+        <Button color="light" size="sm" onClick={changeOrderByRating} className="ml-2 mb-8">
+          Ordina per voto  
+        </Button>
+      </div>
   );
 };
 
@@ -116,17 +92,16 @@ const Layout = props => {
 
 const Heading = props => {
   return (
-    <div className="mx-auto max-w-screen-sm text-center mb-8 lg:mb-16">
+    <div className="mx-auto max-w-screen-sm text-center mb-8 lg:mb-8">
       <h1 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900 dark:text-white">
         Movie Collection
       </h1>
-
-      <p className="font-light text-gray-500 lg:mb-16 sm:text-xl dark:text-gray-400">
-        Explore the whole collection of movies
-      </p>
     </div>
   );
 };
+
+
+
 
 const MovieList = props => {
   if (props.loading) {

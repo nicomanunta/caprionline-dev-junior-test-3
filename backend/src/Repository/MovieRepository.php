@@ -21,56 +21,16 @@ class MovieRepository extends ServiceEntityRepository
         parent::__construct($registry, Movie::class);
     }
 
-    //    /**
-    //     * @return Movie[] Returns an array of Movie objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('m.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
 
-    //    public function findOneBySomeField($value): ?Movie
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
-
-
-    // trovo tutti i film ordinati per anno
-    public function findOrderedByYear(string $orderByYear): array
-    {
-        //creo una query builder per movie
-        $queryBuilder = $this->createQueryBuilder('m');
-        
-        //aggiungo un criterio di ordinamento in base all'anno
-        $queryBuilder->orderBy('m.year', $orderByYear);
-
-       
-        return $queryBuilder->getQuery()->getResult();
-    }
-    public function findOrderedByRating(string $orderByRating): array
-    {
-        //creo una query builder per movie
-        $queryBuilder = $this->createQueryBuilder('m');
-        
-        //aggiungo un criterio di ordinamento in base all'anno
-        $queryBuilder->orderBy('m.rating', $orderByRating);
-
-       
-        return $queryBuilder->getQuery()->getResult();
+    // film ordinati per anno. 
+    public function findOrderedByYear(string $orderBy): array
+    { 
+        return $this->createQueryBuilder('m')->orderBy('m.year', $orderBy)->getQuery()->getResult();
     }
 
-   
-
+    //film ordinati per voto.  
+    public function findOrderedByRating(string $orderBy): array
+    {
+        return $this->createQueryBuilder('m')->orderBy('m.rating', $orderBy)->getQuery()->getResult();
+    }
 }
