@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\GenreRepository;
 use App\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -69,11 +70,25 @@ class Movie
     #[ORM\OneToMany(targetEntity: MovieKeyword::class, mappedBy: 'movie')]
     private Collection $movieKeywords;
 
+    /**
+     * @var Collection App\Entity\Genre
+     */
+    #[
+        ORM\ManyToMany(targetEntity: "App\Entity\Genre", inversedBy: "movies")
+    ]
+    #[
+        ORM\JoinTable(name:"movies_genres")
+    ]
+
+    private $genres;
+
+   
     public function __construct()
     {
         $this->movieGenres = new ArrayCollection();
         $this->movieActors = new ArrayCollection();
         $this->movieKeywords = new ArrayCollection();
+        $this->genres = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -266,4 +281,7 @@ class Movie
 
         return $this;
     }
+
+    
+
 }

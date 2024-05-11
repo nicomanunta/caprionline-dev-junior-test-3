@@ -6,6 +6,8 @@ use App\Entity\Genre;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+use App\Entity\Movie;
+
 /**
  * @extends ServiceEntityRepository<Genre>
  *
@@ -45,4 +47,5 @@ class GenreRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    
 }

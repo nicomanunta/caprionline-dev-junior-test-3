@@ -6,6 +6,9 @@ use App\Entity\Movie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+use App\Entity\Genre;
+
+
 /**
  * @extends ServiceEntityRepository<Movie>
  *
@@ -33,4 +36,5 @@ class MovieRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('m')->orderBy('m.rating', $orderBy)->getQuery()->getResult();
     }
+     
 }

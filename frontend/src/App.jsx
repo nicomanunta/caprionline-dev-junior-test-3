@@ -4,16 +4,21 @@ import { Button, Rating, Spinner } from 'flowbite-react';
 // importiamo Axios
 import axios from 'axios'; 
 
+
+
 const App = props => {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [genres, setGenres] = useState([]);
+  const [selectedGenreId, setSelectedGenreId] = useState(null);
+
+
 
   const fetchMovies = () => {
     setLoading(true);
 
-    // utilizzo axios per effettuare la richiesta ai film
-    axios.get('http://localhost:8000/movies')
-      .then(response => {
+    // chiamata axios per effettuare la richiesta ai film
+    axios.get('http://localhost:8000/movies').then(response => {
         setMovies(response.data);
         setLoading(false);
       })
@@ -21,41 +26,74 @@ const App = props => {
   }
 
   useEffect(() => {
+    // chiamata axios per elenco dei generi disponibili
+    axios.get('http://localhost:8000/genres').then(response => {
+        console.log(response.data);
+        setGenres(response.data);
+      })
+
+    // film in base al genere selezionato
+    if (selectedGenreId !== null) {
+      axios.get('http://localhost:8000/movies', {
+        params: {
+          genre_id: selectedGenreId
+        }
+      }).then(response => {
+          setMovies(response.data);
+        })
+        
+    }
+  }, [selectedGenreId]);
+  
+  // gestore per il cambio del genere selezionato
+  const chooseGenre = (event) => {
+    setSelectedGenreId(event.target.value);
+  };
+
+  useEffect(() => {
     fetchMovies();
   }, []);
 
+  // funzione per ordine anno
   const changeOrderByYear = () => {
     setLoading(true);
-    
     // richiesta GET con parametro orderByYear
-    axios.get('http://localhost:8000/movies?orderByYear=DESC')
-      .then(response => {
-        setMovies(response.data);
-        setLoading(false);
-      })
+    axios.get('http://localhost:8000/movies?orderByYear=DESC').then(response => {
+
+      setMovies(response.data);
+      setLoading(false);
+    })
       
   }
 
+  // funzione per ordine rating
   const changeOrderByRating = () => {
     setLoading(true);
     // richiesta GET con parametro orderByRating
-    axios.get('http://localhost:8000/movies?orderByRating=DESC')
-      .then(response => {
-        setMovies(response.data);
-        setLoading(false);
-      })
+    axios.get('http://localhost:8000/movies?orderByRating=DESC').then(response => {
+
+      setMovies(response.data);
+      setLoading(false);
+    })
       
   }
 
+  // funzione per ricercare i film per genere
+  const submitGenre = () => {
+    if (selectedGenreId !== '') {
+      console.log(selectedGenreId); 
+      axios.get(`http://localhost:8000/movies?genreId=${selectedGenreId}`).then(response => {
+
+        setMovies(response.data);
+      })     
+    }
+  };
+
   return (
     <Layout>
-      <Heading 
-       
-      />
-      <Filter 
-        changeOrderByYear={changeOrderByYear}
-        changeOrderByRating={changeOrderByRating}
-      />
+      <Heading/>
+
+      <Filter changeOrderByYear={changeOrderByYear} changeOrderByRating={changeOrderByRating} chooseGenre={chooseGenre} submitGenre={submitGenre} genres={genres}/>
 
       <MovieList loading={loading}>
         {movies.map((item, key) => (
@@ -67,18 +105,30 @@ const App = props => {
 };
 
 //aggiungo filtri
-const Filter = ({ changeOrderByYear, changeOrderByRating }) => {
+const Filter = ({ changeOrderByYear, changeOrderByRating, chooseGenre, submitGenre, genres }) => {
   return (
     <div className="flex justify-center mt-4">
-        <Button color="light" size="sm" onClick={changeOrderByYear} className="mr-2 mb-8">
-          Ordina dal più recente
-        </Button>
-        <Button color="light" size="sm" onClick={changeOrderByRating} className="ml-2 mb-8">
-          Ordina per voto  
-        </Button>
-      </div>
+      <select onChange={chooseGenre}  color="light" size="sm" style={{ width: '200px', height: '38px', fontSize: '14px',  borderRadius: '8px 0px 0px 8px', border: ' 1px solid #E5E7EB' }}>
+        <option value="" >Seleziona un genere</option>
+        {genres.map(genre => (
+          <option key={genre.id} value={genre.id}>{genre.name}</option>
+        ))}
+      </select>
+      <Button color="light" size="sm" onClick={submitGenre} className="mr-2 mb-8" style={{borderRadius: '0px 8px 8px 0px', border: ' 1px solid #E5E7EB'}}>
+        Invia
+      </Button>
+      <Button color="light" size="sm" onClick={changeOrderByYear} className="mr-2 mb-8" style={{ border: ' 1px solid #E5E7EB'}}>
+        Ordina dal più recente
+      </Button>
+      <Button color="light" size="sm" onClick={changeOrderByRating} className="ml-2 mb-8" style={{ border: ' 1px solid #E5E7EB'}}>
+        Ordina per voto  
+      </Button>
+      
+    </div>
+    
   );
 };
+
 
 const Layout = props => {
   return (
